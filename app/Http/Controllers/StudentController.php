@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
+    public function index()
+    {
+        $students = Student::all();
+        return response()->json($students);
+    }
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

@@ -9,4 +9,5 @@ Route::get('/', function () {
 Route::get('/token', function () {
     return csrf_token();
 });
+Route::get('/students', [StudentController::class, 'index']);
 Route::post('/students', [StudentController::class, 'store']);
