@@ -2,31 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StudentResource;
 use Illuminate\Http\Request;
 use App\Models\Student;
-use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
     public function index()
     {
         $students = Student::all();
-        return response()->json($students);
+        return StudentResource::collection($students);
+    }
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $students = Student::where('first_name', 'like', "%{$query}%")
+            ->orWhere('last_name', 'like', "%{$query}%")
+            ->paginate();
+
+        return StudentResource::collection($students);
     }
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required',
-            'last_name' => 'required',
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(["error" => $validator->errors()], 422);
-        }
-
-        $validated = $validator->validated();
         $student = Student::create($validated);
 
-        return response()->json($student, 201);
+        return new StudentResource($student);
+    }
+    public function update(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'first_name' => 'nullable|string|max:50',
+            'last_name' => 'nullable|string|max:50',
+        ]);
+        $student = Student::findOrFail($id);
+
+        $student->update($validated);
+
+        return new StudentResource($student);
+    }
+    public function destroy(string $id)
+    {
+        $student = Student::findOrFail($id);
+        $student->delete();
     }
 }
