@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\StudentResource;
 use App\Models\Student;
 use App\Traits\HandlesCrud;
 
@@ -19,5 +20,9 @@ class StudentController extends Controller
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
         ];
+    }
+    public function resource()
+    {
+        return StudentResource::class;
     }
 }

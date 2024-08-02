@@ -9,16 +9,21 @@ trait HandlesCrud
 {
     abstract public function model();
     abstract public function rules();
+    abstract public function resource();
 
     public function index()
     {
-        return $this->model()::all();
+        $resource = $this->model()::all();
+
+        return $this->resource()::collection($resource);
     }
     public function store(Request $request)
     {
         Validator::make($request->all(), $this->rules())->validate();
 
-        return $this->model()::create($request->all());
+        $resource = $this->model()::create($request->all());
+
+        return new ($this->resource())($resource);
     }
     public function show($resource_id)
     {
@@ -30,12 +35,16 @@ trait HandlesCrud
 
         Validator::make($request->all(), $this->rules())->validate();
 
-        return $resource->update($request->all());
+        $resource->update($request->all());
+
+        return new ($this->resource())($resource);
     }
     public function destroy($resource_id)
     {
         $resource = $this->model()::findOrFail($resource_id);
 
-        return $resource->delete();
+        $resource->delete();
+
+        return new ($this->resource())($resource);
     }
 }
